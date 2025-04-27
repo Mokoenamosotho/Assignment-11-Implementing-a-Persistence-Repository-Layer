@@ -1,12 +1,26 @@
-# Repositories Design Justification
+# Repository and Storage Abstraction
 
-## Why use a generic Repository interface?
+## In-Memory Repository
 
-We implemented a generic `Repository<T, ID>` interface to promote reusability and avoid code duplication across different entity repositories.
+Implemented a generic in-memory repository using Python's Dictionary (HashMap).
+- Promotes reusability via `InMemoryRepository<T, ID>`.
+- Specialized example: `InMemoryDatabaseRepository` for managing `Database` entities.
 
-- **DRY Principle**: "Don't Repeat Yourself" – no need to redefine standard CRUD operations for every entity.
-- **Flexibility**: New entities can easily create their own repositories by simply extending the generic interface.
-- **Maintainability**: If CRUD signatures need to change, they can be updated in one place only.
-- **Scalability**: The system can scale to many entities without growing boilerplate code.
+## Storage Abstraction: Factory Pattern
 
-Each entity-specific repository (e.g., `DatabaseRepository`, `BackupRepository`, etc.) extends `Repository<T, ID>`, where `T` is the entity class and `ID` is the type of the entity’s primary key (usually `String` for UUIDs).
+**Pattern Chosen:** Factory Pattern
+
+### Why Factory Pattern?
+- **Flexibility**: Swap between storage backends easily.
+- **Future-Proofing**: Add new implementations (e.g., real databases) without changing service code.
+- **Consistency**: Central point of repository instantiation.
+
+### How It Works
+- `RepositoryFactory.get_database_repository("MEMORY")` → returns an in-memory implementation.
+- Support for future `"DATABASE"` backend is already planned.
+
+---
+
+**Testing**
+- Verified CRUD operations for `InMemoryDatabaseRepository`.
+- Verified factory returns correct instances and raises appropriate errors.
